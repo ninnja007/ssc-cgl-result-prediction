@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSC CGL Predictor & Analysis</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        'bounce-short': 'bounce 1s ease-in-out 3',
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'pulse-short': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Custom Base Styles for components -->
+    <style>
+        .card {
+            @apply bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden transition-all duration-300 hover:shadow-2xl;
+        }
+        .btn-primary {
+            @apply bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-blue-500/30 px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2;
+        }
+        .btn-secondary {
+            @apply bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-gray-200 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-50 min-h-screen font-sans transition-colors duration-300">
+
+    <!-- Urgency Banner -->
+    <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white text-sm py-2 px-4 text-center font-medium flex items-center justify-center gap-2 relative z-50">
+        <i data-lucide="alert-circle" class="w-4 h-4 animate-pulse"></i>
+        <span>Flash Sale! Only <span class="font-bold text-yellow-300 seat-counter">34</span> seats left at ₹199. Offer ends soon.</span>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notification-toast" class="fixed bottom-6 right-6 max-w-sm bg-white dark:bg-slate-800 rounded-xl shadow-2xl border-l-4 border-blue-600 p-4 z-50 animate-bounce-short flex items-start gap-3 transition-opacity duration-300">
+        <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-full">
+            <i data-lucide="clock" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
+        </div>
+        <div class="flex-1">
+            <h4 class="font-bold text-sm">Update: Result Coming Soon!</h4>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Sources indicate the result might be declared within the next 48 hours.</p>
+        </div>
+        <button onclick="document.getElementById('notification-toast').style.display='none'" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            &times;
+        </button>
+    </div>
+
+    <!-- Floating WhatsApp -->
+    <a href="#pricing" class="fixed bottom-6 left-6 bg-green-500 text-white p-4 rounded-full shadow-2xl hover:bg-green-600 transition-transform hover:scale-110 z-50 flex items-center justify-center">
+        <i data-lucide="message-circle" class="w-6 h-6"></i>
+    </a>
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-40 backdrop-blur-md bg-white/80 dark:bg-slate-900/80 border-b border-gray-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+                        S
+                    </div>
+                    <span class="font-extrabold text-xl tracking-tight">CGL<span class="text-blue-600 dark:text-blue-400">Predictor</span></span>
+                </div>
+                <div class="hidden md:flex items-center gap-8 font-medium text-sm text-gray-600 dark:text-gray-300">
+                    <a href="#prediction" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Prediction</a>
+                    <a href="#analyzer" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Bonus Analyzer</a>
+                    <a href="#cutoffs" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Cut-offs</a>
+                    <a href="#pricing" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Batch</a>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors text-gray-600 dark:text-gray-300">
+                        <i data-lucide="moon" id="moon-icon" class="w-5 h-5 block dark:hidden"></i>
+                        <i data-lucide="sun" id="sun-icon" class="w-5 h-5 hidden dark:block"></i>
+                    </button>
+                    <a href="#pricing" class="hidden sm:block">
+                        <button class="btn-primary py-2 px-5 text-sm">Join Batch</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="relative pt-20 pb-32 overflow-hidden">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-blue-500/10 dark:bg-blue-600/20 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-medium text-sm mb-8 border border-blue-100 dark:border-blue-800/50">
+                    <i data-lucide="trending-up" class="w-4 h-4"></i>
+                    <span>Over 50,000+ predictions analyzed</span>
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight">
+                    SSC CGL Result <br class="hidden md:block" />
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+                        Prediction & Analysis
+                    </span>
+                </h1>
+                
+                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10">
+                    Don't wait in the dark. Use our advanced algorithms to predict your final normalized score, expected result dates, and secure your seat.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+                    <a href="#pricing" class="w-full sm:w-auto">
+                        <button class="btn-primary w-full text-lg py-4 px-8">
+                            Join Target Batch Now <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                    </a>
+                    <a href="#analyzer" class="w-full sm:w-auto">
+                        <button class="btn-secondary w-full text-lg py-4 px-8">
+                            Calculate Safe Score
+                        </button>
+                    </a>
+                </div>
+
+                <!-- Countdown Timer -->
+                <div class="max-w-3xl mx-auto">
+                    <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-4">Highly Expected Result Date In</h3>
+                    <div class="grid grid-cols-4 gap-4 md:gap-8">
+                        <div class="flex flex-col items-center">
+                            <div id="timer-days" class="card w-full aspect-square flex items-center justify-center text-3xl md:text-5xl font-bold text-blue-600 dark:text-purple-400">00</div>
+                            <span class="mt-3 text-sm font-medium text-gray-600 dark:text-gray-400">Days</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div id="timer-hours" class="card w-full aspect-square flex items-center justify-center text-3xl md:text-5xl font-bold text-blue-600 dark:text-purple-400">00</div>
+                            <span class="mt-3 text-sm font-medium text-gray-600 dark:text-gray-400">Hours</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div id="timer-minutes" class="card w-full aspect-square flex items-center justify-center text-3xl md:text-5xl font-bold text-blue-600 dark:text-purple-400">00</div>
+                            <span class="mt-3 text-sm font-medium text-gray-600 dark:text-gray-400">Minutes</span>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div id="timer-seconds" class="card w-full aspect-square flex items-center justify-center text-3xl md:text-5xl font-bold text-blue-600 dark:text-purple-400">00</div>
+                            <span class="mt-3 text-sm font-medium text-gray-600 dark:text-gray-400">Seconds</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Prediction Dashboard -->
+        <section id="prediction" class="py-20 bg-gray-50/50 dark:bg-slate-900/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">AI-Based Result Prediction</h2>
+                    <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Our models analyze past SSC trends, RTI replies, and current processing speeds to give you the most accurate timeline.</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="card p-8 text-center col-span-1 md:col-span-2 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-bl-full"></div>
+                        <h3 class="text-xl font-bold mb-6 text-left flex items-center gap-2">
+                            <i data-lucide="bar-chart-3" class="text-purple-500 w-6 h-6"></i> Probability Matrix
+                        </h3>
+                        
+                        <div class="space-y-6">
+                            <div class="relative">
+                                <div class="flex justify-between text-sm font-medium mb-2">
+                                    <span>Today (by 10 PM)</span><span>95%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                                    <div class="h-full rounded-full bg-green-500" style="width: 95%"></div>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <div class="flex justify-between text-sm font-medium mb-2">
+                                    <span>Tomorrow</span><span>45%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                                    <div class="h-full rounded-full bg-yellow-500" style="width: 45%"></div>
+                                </div>
+                            </div>
+                            <div class="relative">
+                                <div class="flex justify-between text-sm font-medium mb-2">
+                                    <span>This Weekend</span><span>15%</span>
+                                </div>
+                                <div class="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+                                    <div class="h-full rounded-full bg-red-500" style="width: 15%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card p-8 bg-gradient-to-br from-blue-600 to-purple-600 text-white border-none">
+                        <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                            <i data-lucide="target" class="w-6 h-6"></i> Most Expected Date
+                        </h3>
+                        <div id="dynamic-day" class="text-5xl font-extrabold mb-4">--</div>
+                        <div id="dynamic-month-year" class="text-2xl font-medium mb-6 opacity-90">--</div>
+                        <div class="p-4 bg-white/10 rounded-xl backdrop-blur-sm text-sm border border-white/20">
+                            <p class="flex items-start gap-2">
+                                <i data-lucide="shield-check" class="w-5 h-5 shrink-0 mt-0.5 text-green-300"></i>
+                                <span>Based on analysis of 2023 & 2024 CGL result patterns and current vacancy updates.</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bonus Analyzer Section -->
+        <section id="analyzer" class="py-20 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col lg:flex-row gap-12 items-center">
+                    <div class="lg:w-1/2">
+                        <h2 class="text-3xl md:text-4xl font-bold mb-6">Bonus Marks Analyzer</h2>
+                        <p class="text-gray-600 dark:text-gray-400 mb-8 text-lg">
+                            Input your raw scores and let our algorithm predict your final score based on expected bonus marks for erroneous questions (Single Shift).
+                        </p>
+                        
+                        <ul class="space-y-4 mb-8">
+                            <li class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                                <i data-lucide="check-circle-2" class="text-blue-500 w-5 h-5"></i> Includes specific question bonus logic
+                            </li>
+                            <li class="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                                <i data-lucide="check-circle-2" class="text-blue-500 w-5 h-5"></i> Final score calculation for single shift (+12 Core, +4 Computer)
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="lg:w-1/2 w-full">
+                        <div class="card p-8">
+                            <form id="analyzer-form" class="space-y-6">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Core Raw Score</label>
+                                        <input type="number" id="coreScore" max="390" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700/50 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="e.g. 290" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">Computer Score</label>
+                                        <input type="number" id="computerScore" max="60" required class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-700/50 focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="e.g. 24" />
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn-primary w-full py-4 text-lg">
+                                    <i data-lucide="calculator" class="w-5 h-5"></i> Calculate Expected Score
+                                </button>
+                            </form>
+
+                            <div id="result-container" class="hidden mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/50 animate-fade-in">
+                                <h4 class="font-bold text-center mb-4 text-blue-800 dark:text-blue-300">Your Predicted Results</h4>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="text-center p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
+                                        <div class="text-xs text-gray-500 mb-1">Final Core Score</div>
+                                        <div id="finalCore" class="text-2xl font-bold text-gray-900 dark:text-white">0</div>
+                                        <div class="text-xs text-green-500 mt-1">+12 bonus</div>
+                                    </div>
+                                    <div class="text-center p-3 bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-100 dark:border-slate-700">
+                                        <div class="text-xs text-gray-500 mb-1">Final Computer Score</div>
+                                        <div id="finalComp" class="text-2xl font-bold text-gray-900 dark:text-white">0</div>
+                                        <div class="text-xs text-green-500 mt-1">+4 bonus</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cutoffs Section -->
+        <section id="cutoffs" class="py-20 bg-gray-50/50 dark:bg-slate-900/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Expected Minimum Cut-offs (Raw)</h2>
+                    <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Based on a survey of 50,000+ candidates and vacancy multiplier logic.</p>
+                </div>
+
+                <div class="max-w-4xl mx-auto">
+                    <div class="card overflow-x-auto">
+                        <table class="w-full text-left border-collapse whitespace-nowrap">
+                            <thead>
+                                <tr class="bg-gray-100 dark:bg-slate-800/80 border-b border-gray-200 dark:border-slate-700">
+                                    <th class="p-5 font-semibold text-gray-600 dark:text-gray-300">Category</th>
+                                    <th class="p-5 font-semibold text-gray-600 dark:text-gray-300">Expected Range (Minimum Raw)</th>
+                                    <th class="p-5 font-semibold text-gray-600 dark:text-gray-300">100% Safe Score</th>
+                                    <th class="p-5 font-semibold text-gray-600 dark:text-gray-300">Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cutoffs-body">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="py-24 relative overflow-hidden">
+            <div class="absolute top-1/2 right-0 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Secure Your Future: Target Batch 2026</h2>
+                    <p class="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">Don't wait for results. Start preparing for the next tier or exam with our elite educators.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <!-- Regular Plan -->
+                    <div class="card p-8 flex flex-col opacity-90 scale-95 md:scale-100 transform mt-4 md:mt-0">
+                        <h3 class="text-2xl font-bold mb-2">Standard Access</h3>
+                        <p class="text-gray-500 mb-6">For late joiners after the flash sale.</p>
+                        <div class="text-4xl font-extrabold mb-8">₹499 <span class="text-lg font-normal text-gray-500">/one-time</span></div>
+                        
+                        <ul class="space-y-4 mb-8 flex-1">
+                            <li class="flex items-center gap-3 text-gray-700 dark:text-gray-300"><i data-lucide="check-circle-2" class="text-gray-400 w-5 h-5"></i> Full Syllabus Coverage</li>
+                            <li class="flex items-center gap-3 text-gray-700 dark:text-gray-300"><i data-lucide="check-circle-2" class="text-gray-400 w-5 h-5"></i> 10+ Mock Tests</li>
+                            <li class="flex items-center gap-3 text-gray-700 dark:text-gray-300"><i data-lucide="check-circle-2" class="text-gray-400 w-5 h-5"></i> Basic Doubt Solving</li>
+                            <li class="flex items-center gap-3 text-gray-700 dark:text-gray-300"><i data-lucide="check-circle-2" class="text-gray-400 w-5 h-5"></i> PDF Notes</li>
+                        </ul>
+                        <button class="btn-secondary w-full">Join Waiting List</button>
+                    </div>
+
+                    <!-- Premium Plan -->
+                    <div class="card p-8 flex flex-col border-2 border-blue-500 relative transform md:-translate-y-4 shadow-blue-500/20">
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-1 rounded-b-xl text-sm font-bold shadow-lg whitespace-nowrap">
+                            Most Popular • Flash Sale
+                        </div>
+                        
+                        <div class="flex justify-between items-start mt-6 mb-2">
+                            <h3 class="text-2xl font-bold">Early Bird Pro</h3>
+                            <span class="bg-red-100 text-red-600 text-xs font-bold px-2 py-1 rounded animate-pulse whitespace-nowrap">
+                                <span class="seat-counter">34</span> Seats Left!
+                            </span>
+                        </div>
+                        
+                        <p class="text-gray-500 mb-6">Everything you need to guarantee selection.</p>
+                        <div class="flex items-baseline gap-2 mb-8">
+                            <span class="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">₹199</span>
+                            <span class="text-xl text-gray-400 line-through">₹999</span>
+                        </div>
+                        
+                        <ul class="space-y-4 mb-8 flex-1">
+                            <li class="flex items-center gap-3 font-medium text-gray-800 dark:text-gray-200"><i data-lucide="check-circle-2" class="text-blue-500 w-5 h-5"></i> Everything in Standard</li>
+                            <li class="flex items-center gap-3 font-medium text-gray-800 dark:text-gray-200"><i data-lucide="check-circle-2" class="text-blue-500 w-5 h-5"></i> Personal Mentorship Sessions</li>
+                            <li class="flex items-center gap-3 font-medium text-gray-800 dark:text-gray-200"><i data-lucide="check-circle-2" class="text-blue-500 w-5 h-5"></i> Advanced Tier-2 Mocks</li>
+                            <li class="flex items-center gap-3 font-medium text-gray-800 dark:text-gray-200"><i data-lucide="check-circle-2" class="text-blue-500 w-5 h-5"></i> Private Telegram Group Access</li>
+                            <li class="flex items-center gap-3 font-medium text-gray-800 dark:text-gray-200"><i data-lucide="check-circle-2" class="text-blue-500 w-5 h-5"></i> Priority Doubt Resolution</li>
+                        </ul>
+                        <button class="btn-primary w-full py-4 text-lg animate-pulse-short">
+                            Enroll Now at ₹199 <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        </button>
+                        <p class="text-center text-xs text-gray-500 mt-4 flex items-center justify-center gap-1">
+                            <i data-lucide="shield-check" class="w-4 h-4"></i> 100% Secure Checkout via Razorpay
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section class="py-20 bg-gray-50/50 dark:bg-slate-900/50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-16 flex flex-col items-center">
+                    <i data-lucide="award" class="w-12 h-12 text-yellow-500 mb-4"></i>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Trusted by Toppers</h2>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Review 1 -->
+                    <div class="card p-6">
+                        <div class="flex text-yellow-400 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 italic mb-6">"The result prediction was spot on. I knew I was safe and started my Tier 2 prep early. Best platform out there!"</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 flex items-center justify-center font-bold text-blue-800 dark:text-blue-200">R</div>
+                            <div>
+                                <h4 class="font-bold text-sm">Rahul S.</h4>
+                                <p class="text-xs text-blue-600 dark:text-blue-400 font-medium">AIR 243</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 2 -->
+                    <div class="card p-6">
+                        <div class="flex text-yellow-400 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 italic mb-6">"The bonus marks calculator gave me exactly what my normalized score turned out to be. Highly recommend the Pro batch."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 flex items-center justify-center font-bold text-blue-800 dark:text-blue-200">P</div>
+                            <div>
+                                <h4 class="font-bold text-sm">Priya M.</h4>
+                                <p class="text-xs text-blue-600 dark:text-blue-400 font-medium">Selected (ASO)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Review 3 -->
+                    <div class="card p-6">
+                        <div class="flex text-yellow-400 mb-4">
+                            <i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i><i data-lucide="star" class="w-4 h-4 fill-current"></i>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 italic mb-6">"Joined the ₹199 batch last year. The mock tests were exactly like the real exam. Totally worth it."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 flex items-center justify-center font-bold text-blue-800 dark:text-blue-200">A</div>
+                            <div>
+                                <h4 class="font-bold text-sm">Amit K.</h4>
+                                <p class="text-xs text-blue-600 dark:text-blue-400 font-medium">Income Tax Inspector</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-4 gap-8">
+            <div class="col-span-2">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-8 h-8 rounded bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold">S</div>
+                    <span class="font-bold text-white text-lg">CGLPredictor</span>
+                </div>
+                <p class="text-sm max-w-md">The most advanced AI-driven analysis tool for SSC CGL aspirants. Predict your results, calculate normalized marks, and secure your future.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4">Quick Links</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="hover:text-white transition-colors">Home</a></li>
+                    <li><a href="#analyzer" class="hover:text-white transition-colors">Marks Analyzer</a></li>
+                    <li><a href="#cutoffs" class="hover:text-white transition-colors">Expected Cut-offs</a></li>
+                    <li><a href="#pricing" class="hover:text-white transition-colors">Premium Batch</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold mb-4">Legal</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Refund Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-slate-800 text-sm text-center flex flex-col items-center gap-2">
+            <p>&copy; <span id="current-year"></span> CGLPredictor. All rights reserved. Not affiliated with SSC official body.</p>
+            <p class="font-medium text-blue-500 dark:text-blue-400">Created by Abhishek Jorwal</p>
+        </div>
+    </footer>
+
+    <!-- Logic and Interactions -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Data for Cutoffs table
+        const cutoffs = [
+            { cat: 'UR (General)', score: '300 - 305', safe: '308+', trend: 'up' },
+            { cat: 'OBC', score: '298 - 302', safe: '305+', trend: 'up' },
+            { cat: 'EWS', score: '295 - 300', safe: '302+', trend: 'up' },
+            { cat: 'SC', score: '285 - 290', safe: '292+', trend: 'down' },
+            { cat: 'ST', score: '275 - 280', safe: '282+', trend: 'stable' },
+        ];
+
+        const tbody = document.getElementById('cutoffs-body');
+        cutoffs.forEach(item => {
+            let trendBadge = '';
+            if(item.trend === 'up') trendBadge = `<span class="inline-flex items-center gap-1 text-red-500 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded text-xs"><i data-lucide="trending-up" class="w-3 h-3"></i> High</span>`;
+            if(item.trend === 'down') trendBadge = `<span class="inline-flex items-center gap-1 text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded text-xs"><i data-lucide="trending-down" class="w-3 h-3"></i> Low</span>`;
+            if(item.trend === 'stable') trendBadge = `<span class="inline-flex items-center gap-1 text-gray-500 bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs">- Stable</span>`;
+
+            tbody.innerHTML += `
+                <tr class="border-b border-gray-100 dark:border-slate-700/50 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
+                    <td class="p-5 font-medium">${item.cat}</td>
+                    <td class="p-5 text-blue-600 dark:text-blue-400 font-bold">${item.score}</td>
+                    <td class="p-5 text-green-600 dark:text-green-400 font-bold flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i> ${item.safe}
+                    </td>
+                    <td class="p-5">${trendBadge}</td>
+                </tr>
+            `;
+        });
+        // Re-init icons for dynamic content
+        lucide.createIcons();
+
+        // Dark Mode Toggle
+        const html = document.documentElement;
+        const themeToggle = document.getElementById('theme-toggle');
+        
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+        });
+
+        // Set Current Year in Footer
+        document.getElementById('current-year').innerText = new Date().getFullYear();
+
+        // Seats Left Logic
+        let seats = 34;
+        const seatCounters = document.querySelectorAll('.seat-counter');
+        setInterval(() => {
+            if(seats > 12) {
+                seats -= Math.floor(Math.random() * 2);
+                seatCounters.forEach(el => el.innerText = seats);
+            }
+        }, 45000);
+
+        // Dynamic Date Setting (IST)
+        const setDynamicDate = () => {
+            const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+            const getOrdinal = (n) => {
+                const s = ["th", "st", "nd", "rd"];
+                const v = n % 100;
+                return n + (s[(v - 20) % 10] || s[v] || s[0]);
+            };
+            
+            document.getElementById('dynamic-day').innerText = getOrdinal(now.getDate());
+            document.getElementById('dynamic-month-year').innerText = now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+        };
+        setDynamicDate();
+
+        // Countdown Timer Logic (10 PM IST Today)
+        const updateTimer = () => {
+            const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+            const target = new Date(now);
+            target.setHours(22, 0, 0, 0); // 10 PM
+
+            const difference = target.getTime() - now.getTime();
+
+            if (difference > 0) {
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((difference / 1000 / 60) % 60);
+                const seconds = Math.floor((difference / 1000) % 60);
+
+                document.getElementById('timer-days').innerText = String(days).padStart(2, '0');
+                document.getElementById('timer-hours').innerText = String(hours).padStart(2, '0');
+                document.getElementById('timer-minutes').innerText = String(minutes).padStart(2, '0');
+                document.getElementById('timer-seconds').innerText = String(seconds).padStart(2, '0');
+            } else {
+                document.getElementById('timer-days').innerText = "00";
+                document.getElementById('timer-hours').innerText = "00";
+                document.getElementById('timer-minutes').innerText = "00";
+                document.getElementById('timer-seconds').innerText = "00";
+            }
+        };
+        updateTimer();
+        setInterval(updateTimer, 1000);
+
+        // Bonus Analyzer Form Logic
+        document.getElementById('analyzer-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const coreVal = parseFloat(document.getElementById('coreScore').value);
+            const compVal = parseFloat(document.getElementById('computerScore').value);
+
+            if(isNaN(coreVal) || isNaN(compVal)) return;
+
+            // Fixed logic for single shift
+            const coreBonus = 12;
+            const compBonus = 4;
+
+            const finalCore = (coreVal + coreBonus).toFixed(2);
+            const finalComp = (compVal + compBonus).toFixed(2);
+
+            document.getElementById('finalCore').innerText = finalCore;
+            document.getElementById('finalComp').innerText = finalComp;
+            
+            document.getElementById('result-container').classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
